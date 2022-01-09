@@ -1,5 +1,6 @@
 import json
 from flask import Flask, request, jsonify
+from light_strip import blink_pixel
 
 app = Flask(__name__)
 
@@ -12,7 +13,7 @@ def index():  # put application's code here
 
 @app.route('/event', methods=['POST'])
 def event():
-    record = json.loads(request.data)
+    blink_pixel(0)
 
 
 if __name__ == '__main__':
