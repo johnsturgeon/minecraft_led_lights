@@ -13,6 +13,6 @@ pixels = neopixel.NeoPixel(
 def blink_pixel(pixel_number: int):
     pixels[pixel_number] = (255, 255, 255)
     pixels.show()
-    time.sleep(.1)
+    time.sleep(.05)
     pixels[pixel_number] = (0, 0, 0)
     pixels.show()
