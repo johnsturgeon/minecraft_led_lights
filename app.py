@@ -14,6 +14,8 @@ def index():  # put application's code here
 @app.route('/event', methods=['POST'])
 def event():
     blink_pixel(0)
+    record = json.loads(request.data)
+    return jsonify({'result': 'success'})
 
 
 if __name__ == '__main__':
