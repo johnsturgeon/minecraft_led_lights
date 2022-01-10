@@ -19,3 +19,4 @@ def blink_pixel(pixel_number: int):
 
 def fill_color(r, g, b):
     pixels.fill((r, g, b))
+    pixels.show()
