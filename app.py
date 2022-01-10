@@ -14,7 +14,7 @@ def index():  # put application's code here
 @app.route('/event', methods=['POST'])
 def event():
     # blink_pixel(0)
-    fill_color(255, 0, 255)
+    fill_color(255, 255, 255)
     record = json.loads(request.data)
     return jsonify({'result': 'success'})
 
