@@ -16,3 +16,6 @@ def blink_pixel(pixel_number: int):
     time.sleep(.05)
     pixels[pixel_number] = (0, 0, 0)
     pixels.show()
+
+def fill_color(r, g, b):
+    pixels.fill((r, g, b))

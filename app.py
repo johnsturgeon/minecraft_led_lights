@@ -1,6 +1,6 @@
 import json
 from flask import Flask, request, jsonify
-from light_strip import blink_pixel
+from light_strip import blink_pixel, fill_color
 
 app = Flask(__name__)
 
@@ -14,6 +14,7 @@ def index():  # put application's code here
 @app.route('/event', methods=['POST'])
 def event():
     blink_pixel(0)
+    fill_color(255, 0, 255)
     record = json.loads(request.data)
     return jsonify({'result': 'success'})
 
