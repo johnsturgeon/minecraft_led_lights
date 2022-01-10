@@ -15,7 +15,7 @@ def index():  # put application's code here
 def event():
     # blink_pixel(0)
     fill_color(255, 255, 255)
-    rainbow_cycle(0.05)
+    rainbow_cycle(0)
     record = json.loads(request.data)
     return jsonify({'result': 'success'})
 
