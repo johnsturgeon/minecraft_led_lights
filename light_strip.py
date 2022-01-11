@@ -11,7 +11,7 @@ num_pixels = 300
 ORDER = neopixel.GRB
 
 pixels = neopixel.NeoPixel(
-    pixel_pin, num_pixels, brightness=0.2, auto_write=False, pixel_order=ORDER
+    pixel_pin, num_pixels, brightness=1, auto_write=False, pixel_order=ORDER
 )
 
 
@@ -50,10 +50,21 @@ def fill_color(r, g, b):
     pixels.show()
 
 
-def set_light_scene(scene: LightScene):
-    for pixel in scene.pixels:
-        pixels[pixel] = scene.rgb
-    pixels.show()
+def set_light_scene(scene: LightScene, blend=True):
+    prev_rgb = pixels[scene.pixels[0]]
+    new_rgb = scene.rgb
+    steps = 10  # hard code for now
+    r_per_step = (new_rgb[0] - prev_rgb[0]) / steps
+    g_per_step = (new_rgb[1] - prev_rgb[1]) / steps
+    b_per_step = (new_rgb[2] - prev_rgb[2]) / steps
+    for step in range(1, steps+1):
+        for pixel in scene.pixels:
+            current_rgb = pixels[pixel]
+            new_r = current_rgb[0] + step*r_per_step
+            new_g = current_rgb[1] + step*g_per_step
+            new_b = current_rgb[2] + step*b_per_step
+            pixels[pixel] = (new_r, new_g, new_b)
+        pixels.show()
 
 
 def rainbow_cycle(wait):
