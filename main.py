@@ -1,19 +1,19 @@
-from typing import List
-import pyglet
-from pyglet import shapes
-from pymemcache.client.base import Client
+import json
 import time
+from typing import List, Tuple
+from pymemcache.client.base import Client
 import numpy
-from PIL import ImageGrab, Image
-from mss.darwin import MSS as mss
+import requests
+from PIL import Image
 import mss.tools
-from colorthief import ColorThief
-IS_DRAWING = False
+
+from light_scene import LightScene
+
 client = Client('localhost')
 sct = mss.mss()
 
 
-def get_dominant_color(im) -> []:
+def get_dominant_color(im) -> Tuple:
     import numpy as np
     import scipy.cluster
 
@@ -21,21 +21,18 @@ def get_dominant_color(im) -> []:
     ar = np.asarray(im)
     shape = ar.shape
     ar = ar.reshape(numpy.product(shape[:2]), shape[2]).astype(float)
-
-    # print('finding clusters')
     codes, dist = scipy.cluster.vq.kmeans(ar, num_clusters)
-    # print('cluster centres:\n', codes)
 
-    vectors, dist = scipy.cluster.vq.vq(ar, codes)         # assign codes
-    counts, bins = numpy.histogram(vectors, len(codes))    # count occurrences
+    vectors, dist = scipy.cluster.vq.vq(ar, codes)  # assign codes
+    counts, bins = numpy.histogram(vectors, len(codes))  # count occurrences
 
-    index_max = numpy.argmax(counts)                    # find most frequent
+    index_max = numpy.argmax(counts)  # find most frequent
     peak = codes[index_max]
-    return list(peak)
+    r, g, b = list(peak)
+    return int(r), int(g), int(b)
 
 
-def draw(dt):
-    print(dt)
+def get_quadrant_scenes() -> List[LightScene]:
     global sct
     left, top, width, height = client.get('front_window_frame').decode().split(',')
     left = int(left)
@@ -48,55 +45,41 @@ def draw(dt):
     # Convert to PIL/Pillow Image
     img = Image.frombytes('RGB', sct_img.size, sct_img.bgra, 'raw', 'BGRX')
     size = (75, 75)
-    image_quadrants: List = []
-    circles: List[shapes.Circle] = []
-    # crop left, upper, right, lower
+    light_scenes: List[LightScene] = []
     # top left
-    image_quadrants.append(img.resize(size=size, box=(0, 0, width, height)))
+    top_left_scene = LightScene()
+    top_left_scene.rgb = get_dominant_color(img.resize(size=size, box=(0, 0, width, height)))
+    top_left_scene.pixels = list(range(42, 70))
+    light_scenes.append(top_left_scene)
+
     # bottom left
-    image_quadrants.append(img.resize(size=size, box=(0, height, width, height*2)))
+    bottom_left_scene = LightScene()
+    bottom_left_scene.rgb = get_dominant_color(
+        img.resize(size=size, box=(0, height, width, height * 2))
+    )
+    bottom_left_scene.pixels = list(range(70, 100))
+    light_scenes.append(bottom_left_scene)
+
     # top right
-    image_quadrants.append(img.resize(size=size, box=(width, 0, width*2, height)))
+    top_right_scene = LightScene()
+    top_right_scene.rgb = get_dominant_color(
+        img.resize(size=size, box=(width, 0, width * 2, height))
+    )
+    top_right_scene.pixels = list(range(12, 41))
+    light_scenes.append(top_right_scene)
+
     # bottom right
-    image_quadrants.append(img.resize(size=size, box=(width, height, width*2, height*2)))
-    batch = pyglet.graphics.Batch()
-    for image in image_quadrants:
-        r, g, b = get_dominant_color(image)
-        rgb = (int(r), int(g), int(b))
-        x, y = coordinates_for_index(image_quadrants.index(image))
-        radius = 50
-        circles.append(shapes.Circle(x, y, radius, color=rgb, batch=batch))
-    window.clear()
-    batch.draw()
-
-
-def coordinates_for_index(index: int):
-    if index == 0:
-        return 50, 200
-    if index == 1:
-        return 50, 50
-    if index == 2:
-        return 200, 200
-    if index == 3:
-        return 200, 50
+    bottom_right_scene = LightScene()
+    bottom_right_scene.rgb = get_dominant_color(
+        img.resize(size=size, box=(width, height, width * 2, height * 2))
+    )
+    bottom_right_scene.pixels = list(range(0, 11)) + list(range(101, 118))
+    light_scenes.append(bottom_right_scene)
+    return light_scenes
 
 
 if __name__ == '__main__':
-    w_width = 250
-    w_height = 250
-    window = pyglet.window.Window(w_width, w_height)
-    pyglet.clock.schedule_interval(draw, 1/60.0)
-    # run the pyglet application
-    pyglet.app.run()
-
-    # pixels = Adafruit_NeoPixel(300, 6, "NEO_GRB + NEO_KHZ800")
-    # effects = NeoPixel_Effects(pixels)
-    # pixels.begin()
-    #
-    # pixels.clear()
-    # img = ImageGrab.grab(bbox=(900, 900, 4000, 2300))
-    # img.show()
-    # r, g, b, _ = get_dominant_color(img)
-    # pixels.fill(color=pixels.Color(r, g, b), start=0, count=300)
-    # pixels.show()
-    #
+    scenes: List[LightScene] = get_quadrant_scenes()
+    for scene in scenes:
+        requests.post('http://localhost:5000/set_scene',
+                      data=scene.to_json())

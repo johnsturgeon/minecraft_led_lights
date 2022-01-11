@@ -1,6 +1,9 @@
-pyglet~=1.5.21
 numpy~=1.22.0
 mss~=6.1.0
 pymemcache~=3.5.0
 Pillow~=9.0.0
 Flask~=2.0.2
+board~=1.0
+scipy~=1.7.3
+requests~=2.27.1
+pytest~=6.2.5

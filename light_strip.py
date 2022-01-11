@@ -1,6 +1,10 @@
 import time
+from typing import List
+
 import board
 import neopixel
+
+from light_scene import LightScene
 
 pixel_pin = board.D18
 num_pixels = 300
@@ -43,6 +47,12 @@ def blink_pixel(pixel_number: int):
 
 def fill_color(r, g, b):
     pixels.fill((r, g, b))
+    pixels.show()
+
+
+def set_scene(scene: LightScene):
+    for pixel in scene.pixels:
+        pixels[pixel] = scene.rgb
     pixels.show()
 
 
