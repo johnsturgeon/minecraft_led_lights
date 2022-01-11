@@ -62,6 +62,7 @@ def set_light_scene(scene: LightScene, blend=True):
     print(f"Steps: r:{r_per_step}, g:{g_per_step}, b:{b_per_step}")
     for step in range(1, steps+1):
         for pixel in scene.pixels:
+            print(f"Pixel: {pixel}")
             new_r = pixel[0] + step*r_per_step
             new_g = pixel[1] + step*g_per_step
             new_b = pixel[2] + step*b_per_step
@@ -70,6 +71,7 @@ def set_light_scene(scene: LightScene, blend=True):
 
 
 def rainbow_cycle(wait):
+    """ Sample code for cycling through the rainbow"""
     for j in range(255):
         for i in range(num_pixels):
             pixel_index = (i * 256 // num_pixels) + j
