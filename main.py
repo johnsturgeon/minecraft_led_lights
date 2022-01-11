@@ -81,5 +81,5 @@ def get_quadrant_scenes() -> List[LightScene]:
 if __name__ == '__main__':
     scenes: List[LightScene] = get_quadrant_scenes()
     for scene in scenes:
-        requests.post('http://localhost:5000/set_scene',
+        requests.post('http://raspberry-pi:5000/set_scene',
                       data=scene.to_json())

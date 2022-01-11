@@ -2,6 +2,7 @@ import json
 from flask import Flask, request, jsonify
 from light_scene import LightScene
 # from light_strip import blink_pixel, fill_color, rainbow_cycle
+from light_strip import set_light_scene
 
 app = Flask(__name__)
 
@@ -26,6 +27,7 @@ def set_scene():
     """ Call to set colors for four quadrants """
     scene: LightScene = LightScene()
     scene.from_json(request.data)
+    set_light_scene(scene)
 
     return jsonify({'result': 'success'})
 

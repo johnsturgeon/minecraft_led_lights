@@ -50,7 +50,7 @@ def fill_color(r, g, b):
     pixels.show()
 
 
-def set_scene(scene: LightScene):
+def set_light_scene(scene: LightScene):
     for pixel in scene.pixels:
         pixels[pixel] = scene.rgb
     pixels.show()
