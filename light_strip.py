@@ -62,10 +62,9 @@ def set_light_scene(scene: LightScene, blend=True):
     print(f"Steps: r:{r_per_step}, g:{g_per_step}, b:{b_per_step}")
     for step in range(1, steps+1):
         for pixel in scene.pixels:
-            print(f"Pixel: {pixel}")
-            new_r = pixel[0] + step*r_per_step
-            new_g = pixel[1] + step*g_per_step
-            new_b = pixel[2] + step*b_per_step
+            new_r = prev_rgb[0] + step*r_per_step
+            new_g = prev_rgb[1] + step*g_per_step
+            new_b = prev_rgb[2] + step*b_per_step
             pixels[pixel] = (new_r, new_g, new_b)
         pixels.show()
 
