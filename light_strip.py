@@ -3,7 +3,7 @@ from typing import List
 
 import board
 import neopixel
-
+import colorsys
 from light_scene import LightScene
 
 pixel_pin = board.D18
@@ -52,7 +52,9 @@ def fill_color(r, g, b):
 
 def set_light_scene(scene: LightScene, blend=True):
     prev_rgb = pixels[scene.pixels[0]]
-    new_rgb = scene.rgb
+    h, s, v = colorsys.rgb_to_hsv(r=scene.rgb[0], g=scene.rgb[1], b=scene.rgb[2])
+    s = s+.2
+    new_rgb = colorsys.hsv_to_rgb(h, s, v)
     steps = 10  # hard code for now
     r_per_step = (new_rgb[0] - prev_rgb[0]) / steps
     g_per_step = (new_rgb[1] - prev_rgb[1]) / steps
