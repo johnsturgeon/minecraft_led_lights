@@ -52,19 +52,16 @@ def fill_color(r, g, b):
 
 def set_light_scene(scene: LightScene, blend=True):
     prev_rgb = pixels[scene.pixels[0]]
-    print("Previous RGB: ", prev_rgb)
     new_rgb = scene.rgb
-    print("New RGB: ", new_rgb)
     steps = 10  # hard code for now
     r_per_step = (new_rgb[0] - prev_rgb[0]) / steps
     g_per_step = (new_rgb[1] - prev_rgb[1]) / steps
     b_per_step = (new_rgb[2] - prev_rgb[2]) / steps
-    print(f"Steps: r:{r_per_step}, g:{g_per_step}, b:{b_per_step}")
     for step in range(1, steps+1):
         for pixel in scene.pixels:
-            new_r = prev_rgb[0] + step*r_per_step
-            new_g = prev_rgb[1] + step*g_per_step
-            new_b = prev_rgb[2] + step*b_per_step
+            new_r = prev_rgb[0] + int(step*r_per_step)
+            new_g = prev_rgb[1] + int(step*g_per_step)
+            new_b = prev_rgb[2] + int(step*b_per_step)
             pixels[pixel] = (new_r, new_g, new_b)
         pixels.show()
 
