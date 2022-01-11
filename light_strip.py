@@ -11,7 +11,7 @@ num_pixels = 300
 ORDER = neopixel.GRB
 
 pixels = neopixel.NeoPixel(
-    pixel_pin, num_pixels, brightness=1, auto_write=False, pixel_order=ORDER
+    pixel_pin, num_pixels, brightness=0.4, auto_write=False, pixel_order=ORDER
 )
 
 
