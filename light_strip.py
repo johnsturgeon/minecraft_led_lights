@@ -1,17 +1,22 @@
 import time
-from typing import List
+from threading import Thread
 
 import board
 import neopixel
 import colorsys
+from anim_overrides import MySparkle
 from light_scene import LightScene
+from rain import Rain
+from math import isclose
 
 pixel_pin = board.D18
 num_pixels = 300
+default_brightness = 0.5
 ORDER = neopixel.GRB
+IS_RAINING = False
 
 pixels = neopixel.NeoPixel(
-    pixel_pin, num_pixels, brightness=0.4, auto_write=False, pixel_order=ORDER
+    pixel_pin, num_pixels, brightness=default_brightness, auto_write=False, pixel_order=ORDER
 )
 
 
@@ -50,23 +55,29 @@ def fill_color(r, g, b):
     pixels.show()
 
 
-def set_light_scene(scene: LightScene, blend=True):
-    prev_rgb = pixels[scene.pixels[0]]
-    h, s, v = colorsys.rgb_to_hsv(r=scene.rgb[0], g=scene.rgb[1], b=scene.rgb[2])
-    s = s+.2
-    new_rgb = colorsys.hsv_to_rgb(h, s, v)
-    steps = 10  # hard code for now
+def raining():
+    global IS_RAINING
+    IS_RAINING = True
+    my_rain = Rain(pixels)
+    while IS_RAINING:
+        my_rain.animate()
+
+def stop_rain():
+    global IS_RAINING
+    IS_RAINING = False
+
+def blend_to_color(new_rgb, steps: int, speed: float):
+    prev_rgb = pixels[0]
     r_per_step = (new_rgb[0] - prev_rgb[0]) / steps
     g_per_step = (new_rgb[1] - prev_rgb[1]) / steps
     b_per_step = (new_rgb[2] - prev_rgb[2]) / steps
     for step in range(1, steps+1):
-        for pixel in scene.pixels:
-            new_r = prev_rgb[0] + int(step*r_per_step)
-            new_g = prev_rgb[1] + int(step*g_per_step)
-            new_b = prev_rgb[2] + int(step*b_per_step)
-            pixels[pixel] = (new_r, new_g, new_b)
+        new_r = prev_rgb[0] + int(step*r_per_step)
+        new_g = prev_rgb[1] + int(step*g_per_step)
+        new_b = prev_rgb[2] + int(step*b_per_step)
+        pixels.fill((new_r, new_g, new_b))
+        time.sleep(speed)
         pixels.show()
-
 
 def rainbow_cycle(wait):
     """ Sample code for cycling through the rainbow"""
@@ -76,3 +87,32 @@ def rainbow_cycle(wait):
             pixels[i] = wheel(pixel_index & 255)
         pixels.show()
         time.sleep(wait)
+
+
+def set_brightness(brightness: float, animate: bool=True):
+    if not animate:
+        pixels.brightness = brightness
+        return
+    steps: int = 12
+    step_delta: float = (pixels.brightness - brightness) / steps
+    while not isclose(pixels.brightness, brightness):
+        pixels.brightness = pixels.brightness - step_delta
+        pixels.show()
+        time.sleep(1/steps)
+    print("done")
+
+def sunset(phase: int):
+    sunset_color = (40, 8, 0)
+    set_brightness(0)
+    if IS_RAINING:
+        stop_rain()
+        time.sleep(0.1)
+    pixels.fill(sunset_color)
+    pixels.show()
+    set_brightness(default_brightness)
+
+# if __name__ == '__main__':
+#     thread = Thread(target=raining)
+#     thread.start()
+#     set_brightness(0)
+#     set_brightness(0.5)

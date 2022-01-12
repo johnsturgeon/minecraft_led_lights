@@ -1,8 +1,10 @@
 import json
+from threading import Thread
+
 from flask import Flask, request, jsonify
 from light_scene import LightScene
 # from light_strip import blink_pixel, fill_color, rainbow_cycle
-from light_strip import set_light_scene
+from light_strip import raining, stop_rain, sunset
 
 app = Flask(__name__)
 
@@ -18,17 +20,15 @@ def event():
     # blink_pixel(0)
     # fill_color(255, 255, 255)
     # rainbow_cycle(0)
+    print(request.data)
     record = json.loads(request.data)
-    return jsonify({'result': 'success'})
-
-
-@app.route('/set_scene', methods=['POST'])
-def set_scene():
-    """ Call to set colors for four quadrants """
-    scene: LightScene = LightScene()
-    scene.from_json(request.data)
-    set_light_scene(scene)
-
+    if record['event'] == 'rainStarted':
+        thread = Thread(target=raining)
+        thread.start()
+    elif record['event'] == 'rainStopped':
+        stop_rain()
+    elif record['event'] == 'sunsetStarted':
+        sunset(0)
     return jsonify({'result': 'success'})
 
 
